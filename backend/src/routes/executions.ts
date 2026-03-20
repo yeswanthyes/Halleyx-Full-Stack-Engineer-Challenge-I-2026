@@ -12,6 +12,7 @@ router.get('/', async (req: Request, res: Response) => {
       include: [
         {
           model: Workflow,
+          as: 'workflow',
           attributes: ['name']
         }
       ]
@@ -53,6 +54,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
       include: [
         {
           model: Workflow,
+          as: 'workflow',
           include: [{ model: Step, as: 'steps' }]
         }
       ]

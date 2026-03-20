@@ -16,7 +16,7 @@ Workflow_1.Workflow.hasMany(Step_1.Step, { foreignKey: 'workflow_id', as: 'steps
 Step_1.Step.belongsTo(Workflow_1.Workflow, { foreignKey: 'workflow_id' });
 // Workflow has many Executions
 Workflow_1.Workflow.hasMany(Execution_1.Execution, { foreignKey: 'workflow_id', as: 'executions' });
-Execution_1.Execution.belongsTo(Workflow_1.Workflow, { foreignKey: 'workflow_id' });
+Execution_1.Execution.belongsTo(Workflow_1.Workflow, { foreignKey: 'workflow_id', as: 'workflow' });
 // Step has many Rules
 Step_1.Step.hasMany(Rule_1.Rule, { foreignKey: 'step_id', as: 'rules' });
 Rule_1.Rule.belongsTo(Step_1.Step, { foreignKey: 'step_id' });

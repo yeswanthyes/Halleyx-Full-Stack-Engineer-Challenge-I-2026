@@ -12,12 +12,32 @@ export default function ExecuteWorkflow() {
   const [loading, setLoading] = useState(true);
   const [logsExpanded, setLogsExpanded] = useState(true);
   const [approvingStep, setApprovingStep] = useState(false);
+  const [toast, setToast] = useState<{message: string; visible: boolean} | null>(null);
   const pollRef = useRef<any>(null);
+  const previousLogsLength = useRef(0);
+  const initialLoad = useRef(true);
 
   const load = useCallback(async () => {
     if (!executionId) return;
     try {
       const data = await api.getExecution(executionId);
+      
+      const newLogsLength = data.logs?.length || 0;
+      if (!initialLoad.current) {
+        if (newLogsLength > previousLogsLength.current) {
+           for (let i = previousLogsLength.current; i < newLogsLength; i++) {
+             const log = data.logs[i];
+             if (log.step_type === 'notification') {
+                setToast({ message: `Notification Sent: ${log.step_name}`, visible: true });
+                setTimeout(() => setToast(null), 4000);
+             }
+           }
+        }
+      } else {
+        initialLoad.current = false;
+      }
+      previousLogsLength.current = newLogsLength;
+
       setExecution(data);
       // Stop polling when terminal state
       if (['completed', 'failed', 'canceled'].includes(data.status)) {
@@ -232,6 +252,25 @@ export default function ExecuteWorkflow() {
           )}
         </div>
       </div>
+
+      {/* Live Toast Notification */}
+      {toast && toast.visible && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
+          background: 'var(--glass-bg)', backdropFilter: 'blur(16px)',
+          border: '1px solid var(--accent-blue)', padding: '16px 20px',
+          borderRadius: 8, color: 'var(--text-primary)', fontWeight: 500,
+          boxShadow: '0 8px 32px rgba(84, 132, 232, 0.2)',
+          animation: 'slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center justify-center" style={{ width: 28, height: 28, background: 'var(--accent-blue-soft)', color: 'var(--accent-blue)', borderRadius: '50%' }}>
+               🔔
+             </div>
+             {toast.message}
+          </div>
+        </div>
+      )}
     </>
   );
 }
