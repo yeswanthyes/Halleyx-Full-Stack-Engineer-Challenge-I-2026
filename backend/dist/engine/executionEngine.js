@@ -43,15 +43,33 @@ class ExecutionEngine {
                     throw new Error(`Step ${execution.current_step_id} not found`);
                 }
                 const stepStartTime = new Date();
-                // If it's an approval step, we need external input. Only evaluate rules if the step is explicitly marked as approved in data (for simulation).
-                // For MVP, we auto-approve everything, but in reality it would pause here.
                 if (currentStep.step_type === 'approval') {
-                    // Check if data contains 'approval_decision' for this step. If not, pause.
                     const approvalKey = `approval_${currentStep.id}`;
-                    if (execution.data[approvalKey] === undefined) {
-                        // Missing approval, we stop the engine here so the UI can prompt for it
+                    const approvalDecision = execution.data[approvalKey];
+                    if (approvalDecision === undefined) {
                         console.log(`Execution ${execution.id} waiting for approval on step ${currentStep.name}`);
                         return;
+                    }
+                    // If explicitly rejected, fail the workflow immediately
+                    if (approvalDecision.approved === false) {
+                        const stepEndTime = new Date();
+                        const logEntry = {
+                            step_id: currentStep.id,
+                            step_name: currentStep.name,
+                            step_type: currentStep.step_type,
+                            evaluated_rules: [],
+                            selected_next_step_id: null,
+                            status: 'failed',
+                            error_message: 'Execution rejected by user during approval',
+                            started_at: stepStartTime,
+                            ended_at: stepEndTime
+                        };
+                        await execution.update({
+                            status: 'failed',
+                            logs: [...execution.logs, logEntry],
+                            ended_at: stepEndTime
+                        });
+                        break;
                     }
                 }
                 // Evaluate Rules

@@ -16,11 +16,32 @@ router.get('/', async (req, res) => {
                 }
             ]
         });
-        res.json(executions);
+        // Wrap the response so the frontend `data.data` expects it correctly
+        res.json({
+            data: executions,
+            pagination: {
+                total: executions.length,
+                page: 1,
+                limit: executions.length || 100, // mock pagination for now
+                totalPages: 1
+            }
+        });
     }
     catch (error) {
         console.error('Error fetching executions:', error);
         res.status(500).json({ error: 'Failed to fetch executions' });
+    }
+});
+// DELETE /api/executions - Clear all executions
+router.delete('/', async (req, res) => {
+    try {
+        // Truncate the table basically equivalent
+        await models_1.Execution.destroy({ where: {}, truncate: true });
+        res.json({ success: true, message: 'Audit log cleared' });
+    }
+    catch (error) {
+        console.error('Error clearing executions:', error);
+        res.status(500).json({ error: 'Failed to clear executions' });
     }
 });
 // GET /api/executions/:id
@@ -124,9 +145,15 @@ router.post('/:id/retry', async (req, res) => {
         if (execution.status !== 'failed') {
             return res.status(400).json({ error: `Can only retry failed executions. Current state: ${execution.status}` });
         }
+        // Clear any existing rejection decision for the step that failed, so it asks again
+        const newData = { ...execution.data };
+        if (execution.current_step_id) {
+            delete newData[`approval_${execution.current_step_id}`];
+        }
         await execution.update({
             status: 'pending',
             retries: execution.retries + 1,
+            data: newData,
             ended_at: null
         });
         // Start engine asynchronously

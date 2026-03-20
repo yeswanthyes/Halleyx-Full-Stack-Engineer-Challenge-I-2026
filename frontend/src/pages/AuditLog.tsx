@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ClipboardList, Eye, RefreshCw, XCircle, RotateCcw } from 'lucide-react';
+import { ClipboardList, Eye, RefreshCw, XCircle, RotateCcw, Download, Trash2 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { api } from '../api/client';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -47,6 +49,55 @@ export default function AuditLog() {
     setDetailOpen(true);
   };
 
+  const handleClearLog = async () => {
+    if (!confirm('Are you sure you want to delete ALL execution history? This cannot be undone.')) return;
+    try {
+      await api.clearExecutions();
+      setPage(1);
+      load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Halleyx Workflow Engine - Audit Log', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.text(`Total Executions: ${pagination.total || executions.length}`, 14, 30);
+    doc.text(`Generated At: ${new Date().toLocaleString()}`, 14, 35);
+
+    const tableData = executions.map(exec => {
+      const start = exec.started_at ? new Date(exec.started_at) : null;
+      const end = exec.ended_at ? new Date(exec.ended_at) : null;
+      const duration = start && end
+        ? `${((end.getTime() - start.getTime()) / 1000).toFixed(1)}s`
+        : exec.status === 'in_progress' ? 'Running' : '-';
+
+      return [
+        exec.id.slice(0, 8),
+        exec.workflow?.name || 'Unknown',
+        `v${exec.workflow_version}`,
+        exec.status.toUpperCase(),
+        exec.triggered_by || '-',
+        start ? start.toLocaleString() : '-',
+        duration
+      ];
+    });
+
+    autoTable(doc, {
+      startY: 40,
+      head: [['ID', 'Workflow', 'Version', 'Status', 'Triggered By', 'Started At', 'Duration']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [76, 175, 125] },
+    });
+
+    doc.save('Halleyx-Audit-Log.pdf');
+  };
+
   const statusCounts = {
     all: executions.length,
     completed: executions.filter(e => e.status === 'completed').length,
@@ -59,7 +110,18 @@ export default function AuditLog() {
       <div className="page-header">
         <ClipboardList size={18} />
         <span className="page-title">Audit Log</span>
-        <button className="btn btn-ghost btn-icon" onClick={load}><RefreshCw size={16} /></button>
+        <div style={{ flex: 1 }} />
+        <div className="flex gap-2">
+          <button className="btn btn-secondary" onClick={handleDownloadPDF} disabled={executions.length === 0}>
+            <Download size={14} /> Export PDF
+          </button>
+          <button className="btn btn-danger" onClick={handleClearLog} disabled={executions.length === 0}>
+            <Trash2 size={14} /> Clear Log
+          </button>
+          <button className="btn btn-ghost btn-icon" onClick={load} title="Refresh">
+            <RefreshCw size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="page-body">

@@ -41,6 +41,7 @@ export const api = {
   // Executions
   getExecutions: (page = 1) => api.get<any>(`/executions?page=${page}`),
   getExecution:  (id: string) => api.get<any>(`/executions/${id}`),
+  clearExecutions:() => api.delete<any>('/executions'),
   startExecution:(workflowId: string, body: any) => api.post<any>(`/executions/workflow/${workflowId}`, body),
   cancelExecution:(id: string) => api.post<any>(`/executions/${id}/cancel`, {}),
   retryExecution: (id: string) => api.post<any>(`/executions/${id}/retry`, {}),
