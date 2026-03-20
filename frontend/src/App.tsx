@@ -5,6 +5,7 @@ import WorkflowEditor from './pages/WorkflowEditor';
 import StepRuleEditor from './pages/StepRuleEditor';
 import ExecuteWorkflow from './pages/ExecuteWorkflow';
 import AuditLog from './pages/AuditLog';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <div className="app-bg" />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/workflows" replace />} />
             <Route path="workflows" element={<WorkflowList />} />

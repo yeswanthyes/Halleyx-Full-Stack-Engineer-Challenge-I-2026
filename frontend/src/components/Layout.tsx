@@ -1,7 +1,19 @@
-import { Outlet, NavLink } from 'react-router-dom';
-import { Network, ClipboardList, Zap } from 'lucide-react';
+import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
+import { Network, ClipboardList, Zap, LogOut } from 'lucide-react';
 
 export default function Layout() {
+  const navigate = useNavigate();
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userName');
+    navigate('/login');
+  };
   return (
     <div className="app-layout">
       <aside className="sidebar">
@@ -38,9 +50,18 @@ export default function Layout() {
           </NavLink>
         </nav>
 
-        <div className="sidebar-footer">
-          <Zap size={12} style={{ color: 'var(--brand)', flexShrink: 0 }} />
-          <span className="version-chip">v1.0 · Challenge I</span>
+        <div className="sidebar-footer flex-col items-start gap-1">
+          <div className="flex items-center gap-2 mb-2 w-full">
+            <Zap size={12} style={{ color: 'var(--brand)', flexShrink: 0 }} />
+            <span className="version-chip">v1.0 · Challenge I</span>
+          </div>
+          <button 
+            className="btn btn-ghost w-full justify-start" 
+            style={{ color: 'var(--text-muted)', fontSize: 12, padding: '6px 8px' }}
+            onClick={handleLogout}
+          >
+            <LogOut size={14} /> Sign Out
+          </button>
         </div>
       </aside>
 
