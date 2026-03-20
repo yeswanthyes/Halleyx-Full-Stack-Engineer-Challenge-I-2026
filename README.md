@@ -129,7 +129,7 @@ Think of it as a **programmable flowchart engine** — define the logic once, ex
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yeswanthyes/Halleyx-Full-Stack-Engineer---Challenge-I---2026.git
+git clone https://github.com/yeswanthyes/Halleyx-Full-Stack-Engineer-Challenge-I-2026.git
 cd Halleyx-Full-Stack-Engineer---Challenge-I---2026
 ```
 
