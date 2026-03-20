@@ -1,0 +1,31 @@
+
+> backend@1.0.0 seed
+> ts-node src/db/seed.ts
+
+Successfully connected to SQLite database.
+Database synced successfully.
+Seeding database with sample workflows...
+(sequelize) Warning: Model "Workflow" is declaring public class fields for attribute(s): "id", "name", "version", "is_active", "input_schema", "start_step_id", "created_at", "updated_at".
+These class fields are shadowing Sequelize's attribute getters & setters.
+See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class-fields
+Error seeding database: ValidationError [SequelizeValidationError]: notNull Violation: Step.workflow_id cannot be null
+    at InstanceValidator._validate (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\node_modules\sequelize\src\instance-validator.js:78:13)
+    at async InstanceValidator._validateAndRunHooks (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\node_modules\sequelize\src\instance-validator.js:111:7)
+    at async InstanceValidator.validate (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\node_modules\sequelize\src\instance-validator.js:93:12)
+    at async Step.save (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\node_modules\sequelize\src\model.js:4077:7)
+    at async Function.create (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\node_modules\sequelize\src\model.js:2305:12)
+    at async seedDatabase (D:\Projects\Halleyx Full Stack Engineer - Challenge I - 2026\backend\src\db\seed.ts:32:29) {
+  errors: [
+    ValidationErrorItem {
+      message: 'Step.workflow_id cannot be null',
+      type: 'notNull Violation',
+      path: 'workflow_id',
+      value: null,
+      origin: 'CORE',
+      instance: [Step],
+      validatorKey: 'is_null',
+      validatorName: null,
+      validatorArgs: []
+    }
+  ]
+}
