@@ -111,7 +111,7 @@ Think of it as a **programmable flowchart engine** — define the logic once, ex
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React 18, TypeScript, Vite, React Router v6 |
-| **Styling** | Vanilla CSS with glassmorphism design system inspired by [fluid.glass](https://fluid.glass) |
+| **Styling** | Vanilla CSS with glassmorphism design system |
 | **Icons** | Lucide React |
 | **Backend** | Node.js, Express, TypeScript |
 | **Database** | SQLite via Sequelize ORM |
